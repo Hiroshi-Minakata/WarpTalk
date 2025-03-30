@@ -20,7 +20,7 @@ class Chat():
         return self.__messenger.send(events)
 
     def set_url(self, event: Event) -> bool:
-        reply_events = Format.strs_to_events([config.MESSAGE_SETED_URL], event)
+        reply_events = Format.strs_to_events([config.MESSAGE_SET_URL], event)
         return self.__messenger.send(reply_events)
     
     def change_reply_time(self, event: Event) -> bool:
