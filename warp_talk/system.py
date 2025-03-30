@@ -4,10 +4,10 @@ import config
 from file_sys.file_sys import FileSys
 from gen_ai.gen_ai import GenAI
 from messenger.messenger import Messenger, Event
-from ai import AI
-from chat import Chat
-from data_manager import DataManager
-from format import Format
+from .ai import AI
+from .chat import Chat
+from .data_manager import DataManager
+from .format import Format
 
 class System():
     def __init__(self, user_data: FileSys, chat_data: FileSys, gen_ai: GenAI, messenger: Messenger):

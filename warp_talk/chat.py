@@ -1,7 +1,7 @@
 from flask import Request
 
 import config
-from format import Format
+from .format import Format
 from messenger.messenger import Messenger, Event
 
 class Chat():
