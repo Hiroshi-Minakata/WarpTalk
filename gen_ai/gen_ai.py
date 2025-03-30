@@ -1,4 +1,3 @@
-from typing import Any
 from abc import ABC, abstractmethod
 
 class GenAI(ABC):
@@ -7,7 +6,7 @@ class GenAI(ABC):
         pass
 
     @abstractmethod
-    def chat(self, history: list[dict[str, Any]], prompt: str) -> str:
+    def chat(self, history: list[dict[str, str]] | None, prompt: str) -> str:
         """ History example is [{"role": "user", "prompt": "Hello"}, ...] """
         pass
 

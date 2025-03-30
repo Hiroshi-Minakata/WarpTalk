@@ -1,4 +1,4 @@
-from typing import Any, override
+from typing import override
 import logging
 
 from google.api_core import retry
@@ -13,8 +13,8 @@ class Gemini(GenAI):
         genai.configure(api_key=api_key)
 
         # 設定
-        self.__model = self.set_model()
-        self.__request_options = self.set_request_options()
+        self.set_model()
+        self.set_request_options()
 
     @override
     def generate(self, prompt: str) -> str:
@@ -22,7 +22,7 @@ class Gemini(GenAI):
         return response.text
 
     @override
-    def chat(self, history: list[dict[str, Any]], prompt: str) -> str:
+    def chat(self, history: list[dict[str, str]] | None, prompt: str) -> str:
         chat = self.__model.start_chat(history=history)
         response = chat.send_message(
             prompt,
