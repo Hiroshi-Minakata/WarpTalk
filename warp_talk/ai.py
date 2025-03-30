@@ -24,15 +24,22 @@ class AI():
     
     @staticmethod
     def format(text: str) -> list[str]:
-        text = text.strip() # 前後の空白を削除
-        text = re.sub(r"\[.*\]", "", text) # []とその中身を削除
+        # []とその中身を削除
+        text = re.sub(r"\[.*\]", "", text)
 
         # 5文字以上の非空白文字の後に出現する記号を改行（末尾をのぞく）
-        text = re.sub(r"(\S{5,})([!！?？])(?!$)", r"\1\2\n", text)
+        text = re.sub(r"(\S{5,}?)([!！?？])(?!$)", r"\1\2\n", text)
 
         # 5文字以上の非空白文字の後に出現する記号（"～"を除く）を改行（末尾をのぞく）
-        text = re.sub(r"(\S{5,})(?!～)(\p{S})(?!$)", r"\1\2\n", text)
-        
-        texts = text.split("\n", 4) # 改行ごとに分割
+        text = re.sub(r"(\S{5,}?)(?!～)(\p{S})(?!$)", r"\1\2\n", text)
+
+        # 10文字以上の非空白文字の後に出現する、。を改行（末尾をのぞく）
+        text = re.sub(r"(\S{10,}?)([、。])(?!$)", r"\1\2\n", text)
+
+        # ...を改行（末尾をのぞく）
+        text = re.sub(r'(\.{3}?)(?!$)', r'\1\n', text)
+
+        # 改行ごとに最大4分割、前後の空白を削除
+        texts = [line.strip() for line in text.split("\n", 4) if line.strip()]
 
         return texts
