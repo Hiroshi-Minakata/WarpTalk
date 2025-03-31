@@ -53,9 +53,14 @@ class DataManager():
         user_name   = event.sender.name
 
         # 保存先を取得
-        user_file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(user_id)
+        user_dir = self.__user_data.get_dir(config.USER_DATA_PATH)
+        user_file = user_dir.get_file(user_id)
         user_data: dict = user_file.read()
-        url = user_data.get("url")
+        if user_data is None:
+            url = ""
+            user_dir.create_file({"url": url})
+        else:
+            url = user_data.get("url")
 
         if url:
             chat_dir: Dir = self.__chat_data.get_dir(url)
