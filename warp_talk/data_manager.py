@@ -55,13 +55,8 @@ class DataManager():
         # 保存先を取得
         user_file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(user_id)
         user_data: dict = user_file.read()
-        if user_data is None:
-            url = ""
-            user_file.write({"url": url})
-        else:
+        if user_data:
             url = user_data.get("url")
-
-        if url:
             chat_dir: Dir = self.__chat_data.get_dir(url)
         else: # 保存先がない場合は作成
             chat_dir: Dir = self.__chat_data.create_dir(f"[WarpTalk]{user_name}")
