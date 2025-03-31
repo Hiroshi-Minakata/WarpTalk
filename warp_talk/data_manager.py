@@ -87,6 +87,6 @@ class DataManager():
         return chat_file.write(chat_data)
     
     def delete_chat_data(self, event: Event) -> bool:
-        id = event.to.id
+        id = event.sender.id
         data: dict = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(id).read()
         self.__chat_data.delete_dir(data.get("url"))
