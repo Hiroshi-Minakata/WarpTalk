@@ -13,8 +13,6 @@ from .messenger import Messenger, Event, Content, User
 
 class Line(Messenger):
     def __init__(self, channel_access_token: str, channel_secret: str):
-        self.__payload = None
-
         # 認証
         config = Configuration(access_token=channel_access_token)
         client = ApiClient(config)
@@ -36,17 +34,20 @@ class Line(Messenger):
         
         # 署名の検証
         try: 
-            self.__payload = self.__handler.parser.parse(body, signature, as_payload=True)
+            self.__handler.parser.parse(body, signature)
             return True
         except InvalidSignatureError:
             logging.error("Invalid signature.")
             return False
 
     @override
-    def get(self) -> list[Event]:
+    def get(self, request: Request) -> list[Event]:
+        signature = request.headers.get("X-Line-Signature")
+        body = request.get_data(as_text=True)
+        payload = self.__handler.parser.parse(body, signature, as_payload=True)
         events: list[Event] = []
 
-        for line_event in self.__payload.events:
+        for line_event in payload.events:
             event = Event()
 
             # イベントごとに処理

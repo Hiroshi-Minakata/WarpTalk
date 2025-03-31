@@ -1,9 +1,9 @@
-from typing import Any
 from enum import Enum
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from abc import ABC, abstractmethod
 from zoneinfo import ZoneInfo
 from datetime import datetime
+import json
 
 from flask import Request
 
@@ -16,7 +16,7 @@ class Content:
         VIDEO = "VIDEO"
 
     type: Type = Type.UNKNOWN
-    data: Any = None
+    data: str = ""
 
 @dataclass
 class User:
@@ -61,6 +61,31 @@ class Event:
             return True
         except ValueError:
             return False
+    
+    @staticmethod
+    def from_json(json_data: str) -> "Event":
+        # JSON文字列を辞書に変換
+        data = json.loads(json_data)
+
+        # Eventオブジェクトを生成して返す
+        event = Event()
+        event.type = data["type"]
+
+        event.to.id = data["to"]["id"]
+        event.to.name = data["to"]["name"]
+        event.to.users = [User(id=user['id'], name=user['name']) for user in data['to']['users']]
+
+        event.sender.id = data["sender"]["id"]
+        event.sender.name = data["sender"]["name"]
+
+        event.content.type = data["content"]["type"]
+        event.content.data = data["content"]["data"]
+
+        event.token = data["token"]
+        return event
+    
+    def to_json(self):
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 class Messenger(ABC):
     @abstractmethod
@@ -68,7 +93,7 @@ class Messenger(ABC):
         pass
 
     @abstractmethod
-    def get(self) -> list[Event]:
+    def get(self, request: Request) -> list[Event]:
         pass
 
     @abstractmethod

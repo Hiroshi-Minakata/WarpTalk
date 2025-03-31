@@ -25,3 +25,4 @@ USER_DATA_PATH = os.environ["USER_DATA_PATH"]
 # Other
 ENV     = os.environ["ENV"]
 PORT    = os.getenv("PORT", 8080)
+USER_ID = os.getenv("USER_ID")

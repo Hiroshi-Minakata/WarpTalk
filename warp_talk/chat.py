@@ -14,7 +14,7 @@ class Chat():
             return []
         
         # 受信
-        return self.__messenger.get()
+        return self.__messenger.get(request)
     
     def send(self, events: list[Event]) -> bool:
         return self.__messenger.send(events)
