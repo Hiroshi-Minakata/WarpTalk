@@ -70,7 +70,7 @@ class DataManager():
         chat_file = None
         group_id = event.to.id
         group_name = event.to.name
-        if group_id and group_name:
+        if event.to.users:
             title = f"{group_name} - {group_id}"  
 
             # ファイルを取得（存在しない場合でもエラーを無視）
