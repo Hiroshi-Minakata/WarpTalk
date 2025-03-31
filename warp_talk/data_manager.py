@@ -10,7 +10,7 @@ class DataManager():
         self.__user_data = user_data
         self.__chat_data = chat_data
 
-    def regist_email(self, event: Event) -> bool:
+    def regist_email(self, event: Event) -> str:
         # 保存先の確認
         user_id = event.sender.id
         user_name = event.sender.name
@@ -23,11 +23,13 @@ class DataManager():
             chat_dir: Spreadsheet = self.__chat_data.get_dir(url)
         else: # 保存先がない場合は作成
             chat_dir: Spreadsheet = self.__chat_data.create_dir(f"[WarpTalk]{user_name}")
-            user_file.write({"url": chat_dir.path})            
+            url = chat_dir.path
+            user_file.write({"url": url})            
 
         # 共有先を設定
         email = event.content.data
-        return chat_dir.shere(email)
+        chat_dir.shere(email)
+        return url
     
     def get_chat_data(self, event: Event) -> list[list]:
         chat_file = self.ensure_chat_data(event)
@@ -55,6 +57,7 @@ class DataManager():
         # 保存先を取得
         user_file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(user_id)
         user_data: dict = user_file.read()
+
         if user_data:
             url = user_data.get("url")
             chat_dir: Dir = self.__chat_data.get_dir(url)
