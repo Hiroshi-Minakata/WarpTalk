@@ -64,7 +64,7 @@ class Spreadsheet(Dir):
     def __get(self, title: str) -> gspread.Worksheet:
         return self.__ss.worksheet(title)
 
-class Client(FileSys):
+class GSpread(FileSys):
     def __init__(self, cert: str | None = None):
         """
         Args:

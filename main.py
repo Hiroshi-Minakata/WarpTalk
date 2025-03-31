@@ -2,7 +2,7 @@ from flask import Flask, request
 
 import config
 from file_sys.firebase import Firebase
-from file_sys.spreadsheet import Client
+from file_sys.spreadsheet import GSpread
 from gen_ai.gemini import Gemini
 from messenger.line import Line
 from warp_talk.system import System
@@ -14,7 +14,7 @@ cert = "key.json" if config.ENV == "DEV" else None
 
 # インスタンスの初期化
 user_db     = Firebase(cert)
-chat_db     = Client(cert)
+chat_db     = GSpread(cert)
 gen_ai      = Gemini(config.API_KEY)
 messenger   = Line(config.CHANNEL_ACCESS_TOKEN, config.CHANNEL_SECRET)
 system      = System(user_db, chat_db, gen_ai, messenger)
