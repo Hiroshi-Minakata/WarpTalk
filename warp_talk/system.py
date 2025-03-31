@@ -24,10 +24,10 @@ class System():
         for event in events:
             if event.type is Event.Type.MESSAGE:
                 is_success &= self.__send(event)
-            elif event.type is Event.Type.JOIN:
-                is_success &= self.__join(event)
-            elif event.type is Event.Type.LEAVE:
-                is_success &= self.__leave(event)
+            elif event.type is Event.Type.FOLLOW:
+                is_success &= self.__follow(event)
+            elif event.type is Event.Type.UNFOLLOW:
+                is_success &= self.__unfollow(event)
 
         return is_success
     
@@ -57,18 +57,18 @@ class System():
     def __official(self, event: Event) -> bool:
         message = event.content.data
 
-        if message == config.SYSTEM_SET_URL: # 保存先の設定
-            return self.__chat.set_url(event)
+        if message == config.SYSTEM_SET_EMAIL: # ユーザーの設定
+            return self.__chat.set_email(event)
         elif message == config.SYSTEM_REPLY_TIME: # 返信時期を変更
             return self.__chat.change_reply_time(event)
         elif message == config.SYSTEM_HOW_TO_USE: # 使い方
             return self.__chat.how_to_use(event)
-        else: # 保存先を登録
-            is_success = self.__data_manager.regist_url(event)
-            return self.__chat.regist_url(event, is_success)
+        else: # ユーザーを登録
+            is_success = self.__data_manager.regist_email(event)
+            return self.__chat.regist_email(event, is_success)
         
-    def __join(self, event: Event) -> bool:
+    def __follow(self, event: Event) -> bool:
         return True
         
-    def __leave(self, event: Event) -> bool:
-        return True
+    def __unfollow(self, event: Event) -> bool:
+        return self.__data_manager.delete_chat_data(event)

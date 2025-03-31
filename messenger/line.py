@@ -6,7 +6,7 @@ from linebot import LineBotApi
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.messaging import Configuration, ApiClient, MessagingApi
-from linebot.v3.webhooks.models import MessageEvent, JoinEvent, LeaveEvent, TextMessageContent, GroupSource
+from linebot.v3.webhooks.models import MessageEvent, FollowEvent, UnfollowEvent, TextMessageContent, GroupSource
 from linebot.v3.messaging.models import TextMessage, ImageMessage, VideoMessage, ReplyMessageRequest, PushMessageRequest
 
 from .messenger import Messenger, Event, Content, User
@@ -59,11 +59,11 @@ class Line(Messenger):
                 if isinstance(line_event.message, TextMessageContent):
                     data = line_event.message.text
                     event.content = Content(Content.Type.TEXT, data)
-            elif isinstance(line_event, JoinEvent): # グループ参加
-                event.type = Event.Type.JOIN
+            elif isinstance(line_event, FollowEvent): # グループ参加
+                event.type = Event.Type.FOLLOW
                 event.token = line_event.reply_token
-            elif isinstance(line_event, LeaveEvent): # グループ退会
-                event.type = Event.Type.LEAVE
+            elif isinstance(line_event, UnfollowEvent): # グループ退会
+                event.type = Event.Type.UNFOLLOW
             else: # 不明イベント
                 event.type = Event.Type.UNKNOWN
 
