@@ -12,24 +12,26 @@ class DataManager():
 
     def regist_email(self, event: Event) -> bool:
         # 保存先の確認
-        id = event.sender.id
-        file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(id)
-        data: dict = file.read()
-        url = data.get("url")
+        user_id = event.sender.id
+        user_name = event.sender.name
+
+        user_file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(user_id)
+        user_data: dict = user_file.read()
+        url = user_data.get("url")
 
         if url:
-            dir: Spreadsheet = self.__chat_data.get_dir(url)
+            chat_dir: Spreadsheet = self.__chat_data.get_dir(url)
         else: # 保存先がない場合は作成
-            name = event.to.name
-            dir: Spreadsheet = self.__chat_data.create_dir(f"[WarpTalk]{name}")
-            file.write({"url": dir.path})            
+            chat_dir: Spreadsheet = self.__chat_data.create_dir(f"[WarpTalk]{user_name}")
+            user_file.write({"url": chat_dir.path})            
 
         # 共有先を設定
         email = event.content.data
-        return dir.shere(email)
+        return chat_dir.shere(email)
     
     def get_chat_data(self, event: Event) -> list[list]:
         user_id = event.sender.id
+        user_name = event.sender.name
         group_id = event.to.id
         group_name = event.to.name
         title = f"{group_name} - {group_id}"
@@ -42,8 +44,7 @@ class DataManager():
         if url:
             chat_dir: Dir = self.__chat_data.get_dir(url)
         else: # 保存先がない場合は作成
-            name = event.to.name
-            chat_dir: Dir = self.__chat_data.create_dir(f"[WarpTalk]{name}")
+            chat_dir: Dir = self.__chat_data.create_dir(f"[WarpTalk]{user_name}")
             user_file.write({"url": chat_dir.path})      
 
         # ファイルを取得（存在しない場合でもエラーを無視）
