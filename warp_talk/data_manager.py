@@ -28,7 +28,8 @@ class DataManager():
 
         # 共有先を設定
         email = event.content.data
-        chat_dir.shere(email)
+        if not chat_dir.shere(email):
+            url = ""
         return url
     
     def get_chat_data(self, event: Event) -> list[list]:
