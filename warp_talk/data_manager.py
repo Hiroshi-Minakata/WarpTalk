@@ -1,51 +1,40 @@
 import logging
 
 import config
-from file_sys.file_sys import FileSys, File
+from file_sys.file_sys import FileSys, Dir, File
+from file_sys.spreadsheet import Spreadsheet
 from messenger.messenger import Event
 
 class DataManager():
     def __init__(self, user_data: FileSys, chat_data: FileSys):
         self.__user_data = user_data
         self.__chat_data = chat_data
-        pass
 
-    def regist_url(self, event: Event) -> bool:
-        # 保存先の存在確認
-        chat_data_path = event.content.data
-        directory = self.__chat_data.get_dir(chat_data_path)
-        if directory is None:
-            return False
+    def regist_email(self, event: Event) -> str:
+        # 保存先の確認
+        user_id = event.sender.id
+        user_name = event.sender.name
 
-        # 保存先を登録
-        return self.get_user_data(event.sender.id).write({"chat_data_path": chat_data_path})
+        user_file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(user_id)
+        user_data: dict = user_file.read()
+        url = user_data.get("url")
 
-    def get_user_data(self, file_name: str) -> File | None:
-        directory = self.__user_data.get_dir(config.USER_DATA_PATH)
-        return directory.get_file(file_name)
-    
-    def get_chat_data_file(self, event: Event) -> File | None:
-        # 保存先を取得
-        if (user_data_file := self.get_user_data(event.sender.id)) is None:
-            return None
-        
-        # パスを取得
-        user_data: dict | None = user_data_file.read()        
-        chat_data_path: str | None = user_data.get("chat_data_path")
-        if chat_data_path is None:
-            return None
-        
-        # ファイルを取得
-        chat_data_file = self.ensure_chat_data(event, chat_data_path)
-        return chat_data_file
+        if url:
+            chat_dir: Spreadsheet = self.__chat_data.get_dir(url)
+        else: # 保存先がない場合は作成
+            chat_dir: Spreadsheet = self.__chat_data.create_dir(f"[WarpTalk]{user_name}")
+            url = chat_dir.path
+            user_file.write({"url": url})            
+
+        # 共有先を設定
+        email = event.content.data
+        if not chat_dir.shere(email):
+            url = ""
+        return url
     
     def get_chat_data(self, event: Event) -> list[list]:
-        """ 会話履歴を取得 """
-        if (chat_data_file := self.get_chat_data_file(event)) is None:
-            return [[]]
-        if (chat_data := chat_data_file.read()) is None:
-            return [[]]
-        return chat_data
+        chat_file = self.ensure_chat_data(event)
+        return chat_file.read()
     
     def update_chat_data(self, event: Event, chat_data: list[list], reply_events: list[Event]) -> bool:
         # 初めて書き込む際の処理
@@ -56,29 +45,58 @@ class DataManager():
         chat_data.append([event.timestamp, event.sender.name, event.content.data])
 
         # AIの返信を追加
-        for replay in reply_events:
-            chat_data.append([replay.timestamp, replay.sender.name, replay.content.data])
+        chat_data.extend([[r.timestamp, r.sender.name, r.content.data] for r in reply_events])
 
-        # 会話履歴の保存
-        if (chat_data_file := self.get_chat_data_file(event)) is None:
-            return False
-        if chat_data_file.write(chat_data) is False:
-            return False
-        
-        return True
+        # ファイルに書き込み
+        chat_file = self.ensure_chat_data(event)
+        return chat_file.write(chat_data)
     
-    def ensure_chat_data(self, event: Event, chat_data_path: str) -> File:        
-        # ディレクトリを取得
-        dir = self.__chat_data.get_dir(chat_data_path)
-        file_name = f"{event.to.name} - {event.to.id}"
-        
-        # ファイルを取得（存在しない場合でもエラーを無視）
-        logging.getLogger().setLevel(logging.CRITICAL)
-        file = dir.get_file(file_name)
-        logging.getLogger().setLevel(logging.NOTSET)
+    def ensure_chat_data(self, event: Event) -> File | None:
+        user_id     = event.sender.id
+        user_name   = event.sender.name
 
-        # 存在しない場合は再生成
-        if file is None:
-            file = dir.create_file(file_name)        
+        # 保存先を取得
+        user_file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(user_id)
+        user_data: dict = user_file.read()
 
-        return file
+        if user_data:
+            url = user_data.get("url")
+            chat_dir: Dir = self.__chat_data.get_dir(url)
+        else: # 保存先がない場合は作成
+            chat_dir: Dir = self.__chat_data.create_dir(f"[WarpTalk]{user_name}")
+            user_file.write({"url": chat_dir.path})    
+
+        # ファイル
+        chat_file = None
+        group_id = event.to.id
+        group_name = event.to.name
+        if group_id and group_name:
+            title = f"{group_name} - {group_id}"  
+
+            # ファイルを取得（存在しない場合でもエラーを無視）
+            logging.getLogger().setLevel(logging.CRITICAL)
+            chat_file = chat_dir.get_file(title)
+            logging.getLogger().setLevel(logging.NOTSET)
+
+            # 存在しない場合は作成
+            if chat_file is None:
+                chat_file = chat_dir.create_file(title)
+                
+        return chat_file
+    
+    def delete_chat_data(self, event: Event) -> bool:
+        id = event.sender.id
+        user_file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(id)
+        user_data: dict = user_file.read()
+
+        # 削除済み
+        if not (url := user_data.get("url")):
+            return True
+
+        # ファイル削除
+        self.__chat_data.delete_dir(url)
+
+        # 保存先削除
+        user_file.write({"url":""})
+
+        return True

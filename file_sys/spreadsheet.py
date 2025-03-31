@@ -60,6 +60,14 @@ class Spreadsheet(Dir):
         except GSpreadException as e:
             logging.exception(e)
             return False
+    
+    def shere(self, email: str, perm_type='user', role='writer') -> bool:
+        try:
+            self.__ss.share(email, perm_type=perm_type, role=role)
+            return True
+        except GSpreadException as e:
+            logging.exception(e)
+            return False
 
     def __get(self, title: str) -> gspread.Worksheet:
         return self.__ss.worksheet(title)
@@ -74,7 +82,11 @@ class GSpread(FileSys):
         """
 
         # 認証
-        scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+        scopes = [
+            "https://www.googleapis.com/auth/spreadsheets", # Google Sheets編集
+            "https://www.googleapis.com/auth/drive.file",   # 作成したファイルの編集
+            "https://www.googleapis.com/auth/drive"         # 共有設定変更など
+        ]
         cred = Credentials.from_service_account_file(cert, scopes=scopes) if cert else google.auth.default(scopes)[0]
         self.__client = gspread.authorize(cred)
 

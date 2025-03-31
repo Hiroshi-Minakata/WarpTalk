@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 class File(ABC):
+    def __init__(self):
+        self.path = ""
+
     @abstractmethod
     def write(self, data: Any) -> bool:
         pass
@@ -11,6 +14,9 @@ class File(ABC):
         pass
 
 class Dir(ABC):
+    def __init__(self):
+        self.path = ""
+
     @abstractmethod
     def create_file(self, name: str) -> File | None:
         pass
