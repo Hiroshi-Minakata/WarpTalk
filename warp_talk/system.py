@@ -68,6 +68,7 @@ class System():
             return self.__chat.regist_email(event, is_success)
         
     def __follow(self, event: Event) -> bool:
+        self.__data_manager.ensure_chat_data(event)
         return True
         
     def __unfollow(self, event: Event) -> bool:
