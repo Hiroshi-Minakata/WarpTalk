@@ -27,10 +27,6 @@ class Chat():
         reply_events = Format.strs_to_events([config.MESSAGE_REPLY_TIME], event)
         return self.__messenger.send(reply_events)
     
-    def how_to_use(self, event: Event) -> bool:
-        reply_events = Format.strs_to_events([config.MESSAGE_HOW_TO_USE], event)
-        return self.__messenger.send(reply_events)
-    
     def regist_email(self, event: Event, url: str) -> bool:
         if url:
             reply_events = Format.strs_to_events([config.MESSAGE_OK_EMAIL, f"保存先：{url}"], event)
