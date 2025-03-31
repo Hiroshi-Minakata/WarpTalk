@@ -61,8 +61,6 @@ class System():
             return self.__chat.set_email(event)
         elif message == config.SYSTEM_REPLY_TIME: # 返信時期を変更
             return self.__chat.change_reply_time(event)
-        elif message == config.SYSTEM_HOW_TO_USE: # 使い方
-            return self.__chat.how_to_use(event)
         else: # アカウントの登録
             url = self.__data_manager.regist_email(event)
             return self.__chat.regist_email(event, url)
