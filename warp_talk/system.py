@@ -57,15 +57,15 @@ class System():
     def __official(self, event: Event) -> bool:
         message = event.content.data
 
-        if message == config.SYSTEM_SET_EMAIL: # ユーザーの設定
+        if message == config.SYSTEM_SET_EMAIL: # アカウントを設定
             return self.__chat.set_email(event)
         elif message == config.SYSTEM_REPLY_TIME: # 返信時期を変更
             return self.__chat.change_reply_time(event)
         elif message == config.SYSTEM_HOW_TO_USE: # 使い方
             return self.__chat.how_to_use(event)
-        else: # ユーザーを登録
-            is_success = self.__data_manager.regist_email(event)
-            return self.__chat.regist_email(event, is_success)
+        else: # アカウントの登録
+            url = self.__data_manager.regist_email(event)
+            return self.__chat.regist_email(event, url)
         
     def __follow(self, event: Event) -> bool:
         self.__data_manager.ensure_chat_data(event)
