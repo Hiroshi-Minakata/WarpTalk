@@ -86,17 +86,15 @@ class DataManager():
     
     def delete_chat_data(self, event: Event) -> bool:
         id = event.sender.id
-        user_file = self.__user_data.get_dir(config.USER_DATA_PATH).get_file(id)
+        user_dir = self.__user_data.get_dir(config.USER_DATA_PATH)
+        user_file = user_dir.get_file(id)
         user_data: dict = user_file.read()
 
-        # 削除済み
-        if not (url := user_data.get("url")):
-            return True
-
-        # ファイル削除
+        # 保存先削除
+        url = user_data.get("url")
         self.__chat_data.delete_dir(url)
 
-        # 保存先削除
-        user_file.write({"url":""})
+        # ユーザー削除
+        user_dir.delete_file(id)
 
         return True
