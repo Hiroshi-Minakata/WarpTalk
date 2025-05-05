@@ -15,7 +15,8 @@ class AI():
 
         # 生成
         system_instructions = f"あなたは{name}です。\n {config.SYSTEM_INSTRUCTIONS}"
-        self.__gen_ai.set_model(config.MODEL_NAME, system_instructions)
+        self.__gen_ai.model = config.MODEL_NAME
+        self.__gen_ai.system_instruction = system_instructions
         response = self.__gen_ai.chat(contexts, f"[{timestamp}] {prompt}")
 
         # 整形

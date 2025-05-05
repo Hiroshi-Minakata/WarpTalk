@@ -21,7 +21,7 @@ class Format():
             role = "model" if name == event.to.name else "user"
 
             # 会話履歴の追加
-            contexts.append({"role": role, "parts": f"[{timestamp}] {message}"})
+            contexts.append({"role": role, "text": f"[{timestamp}] {message}"})
 
         return contexts
     
