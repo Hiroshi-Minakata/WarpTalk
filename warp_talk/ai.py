@@ -8,25 +8,33 @@ class AI():
     def __init__(self, gen_ai: GenAI):
         self.__gen_ai = gen_ai
 
-    def first_time(self, event: Event) -> list[list]:
-        """ 初回のキャラクター設定 """
-        name = event.to.name
-        responses: list[list] = []
-
-        # キャラクターの設定を生成
+    def init_profile(self, event: Event) -> list[str]:
+        """ キャラクター設定 """
         self.__gen_ai.model = config.MODEL_NAME
         self.__gen_ai.system_instruction = ""
-        instruction = config.GROUNDING1.replace("name", name)
-        response = self.__gen_ai.generate(instruction)
-        responses.append(["", "system", response])
 
-        # キャラクターの会話を生成
-        self.__gen_ai.system_instruction = response
-        instruction = config.GROUNDING2.replace("name", name)
+        # 生成
+        instruction = config.GROUNDING1.replace("name", event.to.name)
         response = self.__gen_ai.generate(instruction)
-        responses.append(["", "system", response])
 
-        return responses
+        # 正規表現で先頭2行を削除
+        response = re.sub(r'^(.*\n){2}', "", response)
+
+        return ["", "system", response]
+
+    def init_talk(self, event: Event, system_instruction: str) -> list[str]:
+        """ キャラクターの会話を生成 """
+        self.__gen_ai.model = config.MODEL_NAME
+        self.__gen_ai.system_instruction = system_instruction
+
+        # 生成
+        instruction = config.GROUNDING2.replace("name", event.to.name)
+        response = self.__gen_ai.generate(instruction)
+
+        # 正規表現で先頭2行を削除
+        response = re.sub(r'^(.*\n){2}', "", response)
+        
+        return ["", "system", response]
 
     def chat(self, event: Event, contexts: list[dict[str, str]] | None) -> list[str]:
         """ キャラクターになりきって会話 """
@@ -35,7 +43,7 @@ class AI():
         prompt = event.content.data
 
         # 生成
-        system_instructions = f"あなたは{name}です。\n {config.SYSTEM_INSTRUCTIONS}"
+        system_instructions = f"{name}として会話します。\n {config.SYSTEM_INSTRUCTIONS}"
         self.__gen_ai.model = config.MODEL_NAME
         self.__gen_ai.system_instruction = system_instructions
         response = self.__gen_ai.chat(contexts, f"[{timestamp}] {prompt}")

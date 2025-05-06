@@ -36,11 +36,11 @@ class DataManager():
         chat_file = self.ensure_chat_data(event)
         return chat_file.read()
     
+    def write_chat_data(self, event: Event, chat_data: list[list]) -> bool:
+        chat_file = self.ensure_chat_data(event)
+        return chat_file.write(chat_data)
+    
     def update_chat_data(self, event: Event, chat_data: list[list], reply_events: list[Event]) -> bool:
-        # 初めて書き込む際の処理
-        if not chat_data or not chat_data[0]:
-            chat_data = []
-
         # ユーザーのメッセージ
         chat_data.append([event.timestamp, event.sender.name, event.content.data])
 

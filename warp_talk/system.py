@@ -40,14 +40,17 @@ class System():
         
     def __group(self, event: Event) -> bool:
         # 会話履歴を取得
-        chat_data = self.__data_manager.get_chat_data(event)
+        chat_data:list[list] = self.__data_manager.get_chat_data(event)        
 
-        # データがない場合は初期化
-        if not chat_data or not chat_data[0]:
-            chat_data = self.__ai.first_time(event)
-        # システム指示がない場合は先頭に追加
-        elif chat_data[0][1] != "system" and chat_data[1][1] != "system":
-            chat_data = self.__ai.first_time(event) + chat_data
+        # プロフィールのシステム指示がない場合は1番目に追加
+        if len(chat_data[0]) < 3 or chat_data[0][1] is not "system" or not chat_data[0][2]:
+            chat_data[0] = self.__ai.init_profile(event)
+            self.__data_manager.write_chat_data(event, chat_data)
+
+        # 会話のシステム指示がない場合は2番目に追加
+        if len(chat_data) < 2 or chat_data[1][1] is not "system" or not chat_data[1][2]:
+            chat_data[1:2] = [self.__ai.init_talk(event, chat_data[0][2])]
+            self.__data_manager.write_chat_data(event, chat_data)
 
         # AIによる返答の構築
         contexts = Format.chats_to_contexts(chat_data, event)
