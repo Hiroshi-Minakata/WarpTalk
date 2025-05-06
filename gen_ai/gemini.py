@@ -29,7 +29,7 @@ class Gemini(GenAI):
     @override
     def generate(self, prompt: str) -> str:
         """ 単一のプロンプトからテキストを生成 """
-        contents = [self.create_content(prompt, "user")]
+        contents = [Gemini.create_content(prompt, "user")]
         system_instruction_content = Gemini.create_content(self.system_instruction, "system")
 
         response: GenerateContentResponse = self.__client.models.generate_content(
@@ -47,8 +47,15 @@ class Gemini(GenAI):
     def chat(self, history: list[dict[str, str]] | None, prompt: str) -> str:
         """ 会話履歴に基づいてチャット """
         history.append({"role": "user", "text": prompt})
-        full_contents: List[Content] = Gemini.format_history(history)
-        system_instruction_content = Gemini.create_content(self.system_instruction, "system")
+        
+        # system指示を抽出
+        system_texts = [item["text"] for item in history if item.get("role") == "system" and item.get("text")]
+        system_instruction = "\n".join(system_texts + [self.system_instruction])
+        system_instruction_content = Content(role="system", parts=[Part(text=system_instruction)])
+
+        # system以外を会話履歴として使う
+        conversation_history = [item for item in history if item.get("role") in ["user", "model"]]
+        full_contents: List[Content] = Gemini.format_history(conversation_history)
 
         response: GenerateContentResponse = self.__client.models.generate_content(
             model=self.model,

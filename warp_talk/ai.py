@@ -8,7 +8,28 @@ class AI():
     def __init__(self, gen_ai: GenAI):
         self.__gen_ai = gen_ai
 
+    def first_time(self, event: Event) -> list[list]:
+        """ 初回のキャラクター設定 """
+        name = event.to.name
+        responses: list[list] = []
+
+        # キャラクターの設定を生成
+        self.__gen_ai.model = config.MODEL_NAME
+        self.__gen_ai.system_instruction = ""
+        instruction = config.GROUNDING1.replace("name", name)
+        response = self.__gen_ai.generate(instruction)
+        responses.append(["", "system", response])
+
+        # キャラクターの会話を生成
+        self.__gen_ai.system_instruction = response
+        instruction = config.GROUNDING2.replace("name", name)
+        response = self.__gen_ai.generate(instruction)
+        responses.append(["", "system", response])
+
+        return responses
+
     def chat(self, event: Event, contexts: list[dict[str, str]] | None) -> list[str]:
+        """ キャラクターになりきって会話 """
         name = event.to.name
         timestamp = event.timestamp
         prompt = event.content.data
@@ -25,6 +46,7 @@ class AI():
     
     @staticmethod
     def format(text: str) -> list[str]:
+        """ テキストを自然な形に整形と分割 """
         # []とその中身を削除
         text = re.sub(r"\[.*\]", "", text)
 

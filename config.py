@@ -8,6 +8,8 @@ CHANNEL_SECRET          = os.environ["CHANNEL_SECRET"]
 # AI
 MODEL_NAME          = os.environ["MODEL_NAME"]
 SYSTEM_INSTRUCTIONS = os.environ["SYSTEM_INSTRUCTIONS"]
+GROUNDING1          = os.environ["GROUNDING1"]
+GROUNDING2          = os.environ["GROUNDING2"]
 
 # Chat
 SYSTEM_SET_EMAIL    = os.environ["SYSTEM_SET_EMAIL"]

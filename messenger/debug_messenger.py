@@ -26,7 +26,7 @@ class DebugMessenger(Messenger):
             event.content.data = message
 
             # 送信先
-            event.to.id = "ID"
+            event.to.id = "0000"
             event.to.name = "Debuger"
             event.to.users.append(User("dummy1 ID", "dummy1 Name"))
 
