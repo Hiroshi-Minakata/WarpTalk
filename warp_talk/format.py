@@ -15,13 +15,18 @@ class Format():
 
             # タイムスタンプの確認
             if not Event.is_timestamp(timestamp):
-                continue
+                timestamp = ""
 
             # ロールの設定
-            role = "model" if name == event.to.name else "user"
+            if name == event.to.name:
+                role = "model"
+            elif name == event.sender.name:
+                role = "user"
+            else:
+                role = "system"
 
             # 会話履歴の追加
-            contexts.append({"role": role, "parts": f"[{timestamp}] {message}"})
+            contexts.append({"role": role, "text": f"[{timestamp}] {message}"})
 
         return contexts
     

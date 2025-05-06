@@ -39,11 +39,18 @@ class System():
             return self.__official(event)
         
     def __group(self, event: Event) -> bool:
-        # コンテキストを生成
+        # 会話履歴を取得
         chat_data = self.__data_manager.get_chat_data(event)
-        contexts = Format.chats_to_contexts(chat_data, event)
+
+        # データがない場合は初期化
+        if not chat_data or not chat_data[0]:
+            chat_data = self.__ai.first_time(event)
+        # システム指示がない場合は先頭に追加
+        elif chat_data[0][1] != "system" and chat_data[1][1] != "system":
+            chat_data = self.__ai.first_time(event) + chat_data
 
         # AIによる返答の構築
+        contexts = Format.chats_to_contexts(chat_data, event)
         responses = self.__ai.chat(event, contexts)
         reply_events: list[Event] = Format.strs_to_events(responses, event)
 
