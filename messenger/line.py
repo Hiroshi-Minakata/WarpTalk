@@ -79,9 +79,8 @@ class Line(Messenger):
                 try:
                     group_summary = self.__line_bot_api.get_group_summary(source.group_id)
                     event.to.name = group_summary.group_name
-                except Exception as e:
-                    logging.exception(e)
-                    event.to.name = None
+                except:
+                    event.to.name = "Group Name"
 
                 # Members
                 # https://developers.line.biz/en/reference/messaging-api/#get-group-member-user-ids
@@ -101,9 +100,8 @@ class Line(Messenger):
             try:
                 profile = self.__line_bot_api.get_profile(source.user_id)
                 event.sender.name = profile.display_name
-            except Exception as e:
-                logging.exception(e)
-                event.sender.name = None
+            except:
+                event.sender.name = "Display Name"
 
             # Add
             events.append(event)
