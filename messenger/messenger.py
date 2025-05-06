@@ -34,8 +34,10 @@ class Event:
     class Type(Enum):
         UNKNOWN = "UNKNOWN"
         MESSAGE = "MESSAGE"
-        FOLLOW = "JOIN"
-        UNFOLLOW = "LEAVE"
+        FOLLOW = "FOLLOW"
+        UNFOLLOW = "UNFOLLOW"
+        JOIN = "JOIN"
+        LEAVE = "LEAVE"
     type: Type = Type.UNKNOWN
 
     to: To = field(default_factory=To)
