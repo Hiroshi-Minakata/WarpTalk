@@ -98,11 +98,9 @@ class System():
         return self.__data_manager.delete_chat_data(event)
     
     def __join(self, event: Event) -> bool:
-        print("!!!!!!!!!!!!!!!!!!!")
-        self.__data_manager.ensure_chat_data(event)
-        print("??????????????????????")
-        return self.__ensure_system_instructions(event, [[]])  
+        print(event.to.id, event.to.name, event.sender.id, event.sender.name)
+        return True
     
     def __leave(self, event: Event) -> bool:
-        print(event.to.id, event.to.name)
+        print(event.to.id, event.to.name, event.sender.id, event.sender.name)
         return True
