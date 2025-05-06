@@ -15,6 +15,22 @@ class System():
         self.__ai = AI(gen_ai)
         self.__chat = Chat(messenger)
 
+    def __ensure_system_instructions(self, event: Event, chat_data: list[list]) -> bool:
+        """ システム指示の確認 """
+        is_success = True
+
+        # プロフィールのシステム指示がない場合は1番目に追加
+        if len(chat_data[0]) < 3 or chat_data[0][1] != "system" or not chat_data[0][2]:
+            chat_data[0] = self.__ai.init_profile(event)
+            is_success &= self.__data_manager.write_chat_data(event, chat_data)
+
+        # 会話のシステム指示がない場合は2番目に追加
+        if len(chat_data) < 2 or chat_data[1][1] != "system" or not chat_data[1][2]:
+            chat_data[1:2] = [self.__ai.init_talk(event, chat_data[0][2])]
+            is_success &= self.__data_manager.write_chat_data(event, chat_data)
+
+        return is_success
+
     def execute(self, request: Request) -> bool:
         # 受信
         events = self.__chat.get(request)
@@ -28,6 +44,10 @@ class System():
                 is_success &= self.__follow(event)
             elif event.type is Event.Type.UNFOLLOW:
                 is_success &= self.__unfollow(event)
+            elif event.type is Event.Type.JOIN:
+                is_success &= self.__join(event)
+            elif event.type is Event.Type.LEAVE:
+                is_success &= self.__leave(event)
 
         return is_success
     
@@ -40,14 +60,10 @@ class System():
         
     def __group(self, event: Event) -> bool:
         # 会話履歴を取得
-        chat_data = self.__data_manager.get_chat_data(event)
+        chat_data:list[list] = self.__data_manager.get_chat_data(event)      
 
-        # データがない場合は初期化
-        if not chat_data or not chat_data[0]:
-            chat_data = self.__ai.first_time(event)
-        # システム指示がない場合は先頭に追加
-        elif chat_data[0][1] != "system" and chat_data[1][1] != "system":
-            chat_data = self.__ai.first_time(event) + chat_data
+        # システム指示の確認
+        self.__ensure_system_instructions(event, chat_data)  
 
         # AIによる返答の構築
         contexts = Format.chats_to_contexts(chat_data, event)
@@ -80,3 +96,11 @@ class System():
         
     def __unfollow(self, event: Event) -> bool:
         return self.__data_manager.delete_chat_data(event)
+    
+    def __join(self, event: Event) -> bool:
+        print(event.to.id, event.to.name, event.sender.id, event.sender.name)
+        return True
+    
+    def __leave(self, event: Event) -> bool:
+        print(event.to.id, event.to.name, event.sender.id, event.sender.name)
+        return True
