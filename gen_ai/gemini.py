@@ -8,7 +8,7 @@ from .gen_ai import GenAI
 class Gemini(GenAI):
     def __init__(self, api_key: str):
         self.__client = genai.Client(api_key=api_key)
-        self.model = "gemini-2.0-pro"
+        self.model = "gemini-2.5-pro"
         self.system_instruction = ""
         self.__google_search_tool = Tool(google_search = GoogleSearch())
 
