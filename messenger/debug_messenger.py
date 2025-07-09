@@ -3,7 +3,6 @@ import json
 
 from flask import Request
 
-import config
 from .messenger import Messenger, Event, User
 
 class DebugMessenger(Messenger):
@@ -16,23 +15,26 @@ class DebugMessenger(Messenger):
 
     @override
     def get(self, request: Request) -> list[Event]:
-        messages: list[str] = json.loads(request.get_data(as_text=True))
+        with open("debug/request.json", 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        messages: list[str] = data["messages"]
         events: list[Event] = []
 
         for message in messages:
             event = Event()
-            event.type = Event.Type.MESSAGE
-            event.token = "Token"
+            event.type = Event.Type(data["event_type"])
+            event.token = data["token"]
             event.content.data = message
 
             # 送信先
-            event.to.id = "0000"
-            event.to.name = "Debuger"
+            event.to.id = data["to_id"]
+            event.to.name = data["to_name"]
             event.to.users.append(User("dummy1 ID", "dummy1 Name"))
 
             # 送信元
-            event.sender.id = config.USER_ID
-            event.sender.name = "Sender"
+            event.sender.id = data["sender_id"]
+            event.sender.name = data["sender_name"]
 
             events.append(event)
 

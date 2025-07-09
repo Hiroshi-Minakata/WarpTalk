@@ -21,12 +21,12 @@ def factory() -> System:
 
     # DB各種
     if user_db is not Firebase:
-        cert = "debug/key.json" if config.ENV == "DEV" else None
+        cert = None if config.ENV == "PROD" else "debug/key.json"
         user_db = Firebase(cert)
 
     # DB各種
     if chat_db is not GSpread:
-        cert = "debug/key.json" if config.ENV == "DEV" else None
+        cert = None if config.ENV == "PROD" else "debug/key.json"
         chat_db = GSpread(cert)
 
     # AI各種
@@ -44,7 +44,17 @@ def factory() -> System:
 
 # エントリポイント
 @app.route("/", methods=["POST"])
-def entry_point():
+def entry_point_post():
+    system = factory()
+    is_success = system.execute(request)    
+    return ("OK", 200) if is_success else ("BAD", 400)
+
+# エントリポイント（デバッグ用）
+@app.route("/", methods=["GET"])
+def entry_point_get():
+    if config.ENV != "DEV":
+        return ("BAD", 404)
+
     system = factory()
     is_success = system.execute(request)    
     return ("OK", 200) if is_success else ("BAD", 400)

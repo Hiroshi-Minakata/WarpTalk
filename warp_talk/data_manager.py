@@ -73,10 +73,14 @@ class DataManager():
         if event.to.users:
             title = f"{group_name} - {group_id}"  
 
-            # ファイルを取得（存在しない場合でもエラーを無視）
-            logging.getLogger().setLevel(logging.CRITICAL)
-            chat_file = chat_dir.get_file(title)
-            logging.getLogger().setLevel(logging.NOTSET)
+            # ファイルをすべて取得
+            chat_files: list[File] = chat_dir.get_all_files()
+
+            # group_idが含まれるファイルを取得
+            for file in chat_files:
+                if group_id in file.path:
+                    chat_file = file
+                    break
 
             # 存在しない場合は作成
             if chat_file is None:
