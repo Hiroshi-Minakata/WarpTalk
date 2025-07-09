@@ -6,7 +6,7 @@ class GenAI(ABC):
     def __init__(self):
         self.model = ""
         self.system_instruction = ""
-        self.max_retries = 3
+        self.max_retries = 6
 
     @abstractmethod
     def generate(self, prompt: str) -> str:
