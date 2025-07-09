@@ -7,6 +7,8 @@ from .gen_ai import GenAI
 
 class Gemini(GenAI):
     def __init__(self, api_key: str):
+        super().__init__()
+
         self.__client = genai.Client(api_key=api_key)
         self.model = "gemini-2.5-pro"
         self.system_instruction = ""
@@ -32,7 +34,8 @@ class Gemini(GenAI):
         contents = [Gemini.create_content(prompt, "user")]
         system_instruction_content = Gemini.create_content(self.system_instruction, "system")
 
-        response: GenerateContentResponse = self.__client.models.generate_content(
+        response: GenerateContentResponse = self._call_with_retry(
+            self.__client.models.generate_content,
             model=self.model,
             contents=contents,
             config=GenerateContentConfig(
@@ -40,7 +43,7 @@ class Gemini(GenAI):
                 tools=[self.__google_search_tool],
                 response_modalities=["TEXT"],
             ),
-            )
+        )
         return response.text
 
     @override
@@ -57,7 +60,8 @@ class Gemini(GenAI):
         conversation_history = [item for item in history if item.get("role") in ["user", "model"]]
         full_contents: List[Content] = Gemini.format_history(conversation_history)
 
-        response: GenerateContentResponse = self.__client.models.generate_content(
+        response: GenerateContentResponse = self._call_with_retry(
+            self.__client.models.generate_content,
             model=self.model,
             contents=full_contents,
             config=GenerateContentConfig(
