@@ -8,35 +8,15 @@ class AI():
     def __init__(self, gen_ai: GenAI):
         self.__gen_ai = gen_ai
 
-    def init_profile(self, event: Event) -> list[str]:
-        """ キャラクター設定 """
-        self.__gen_ai.model = config.MODEL_NAME
-        self.__gen_ai.system_instruction = ""
-
-        # 生成
-        instruction = config.GROUNDING1.replace("name", event.to.name)
-        response = self.__gen_ai.generate(instruction)
+    def gen_system_instruction(self, prompt: str, contexts: list[dict[str, str]] = []) -> list[str]:
+        """ システム指示生成"""
+        response = self.__gen_ai.chat(contexts, prompt)
 
         # 正規表現で先頭2行を削除
         response = re.sub(r'^(.*\n){2}', "", response)
-
         return ["", "system", response]
 
-    def init_talk(self, event: Event, system_instruction: str) -> list[str]:
-        """ キャラクターの会話を生成 """
-        self.__gen_ai.model = config.MODEL_NAME
-        self.__gen_ai.system_instruction = system_instruction
-
-        # 生成
-        instruction = config.GROUNDING2.replace("name", event.to.name)
-        response = self.__gen_ai.generate(instruction)
-
-        # 正規表現で先頭2行を削除
-        response = re.sub(r'^(.*\n){2}', "", response)
-        
-        return ["", "system", response]
-
-    def chat(self, event: Event, contexts: list[dict[str, str]] | None) -> list[str]:
+    def chat(self, event: Event, contexts: list[dict[str, str]] = []) -> list[str]:
         """ キャラクターになりきって会話 """
         name = event.to.name
         timestamp = event.timestamp

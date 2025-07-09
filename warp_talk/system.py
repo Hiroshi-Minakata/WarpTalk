@@ -21,12 +21,15 @@ class System():
 
         # プロフィールのシステム指示がない場合は1番目に追加
         if len(chat_data[0]) < 3 or chat_data[0][1] != "system" or not chat_data[0][2]:
-            chat_data[0] = self.__ai.init_profile(event)
+            prompt = config.GROUNDING1.replace("name", event.to.name)
+            chat_data[0] = self.__ai.gen_system_instruction(prompt)
             is_success &= self.__data_manager.write_chat_data(event, chat_data)
 
-        # 会話のシステム指示がない場合は2番目に追加
+        # 自己紹介がない場合は2番目に追加
         if len(chat_data) < 2 or chat_data[1][1] != "system" or not chat_data[1][2]:
-            chat_data[1:2] = [self.__ai.init_talk(event, chat_data[0][2])]
+            prompt = config.GROUNDING2.replace("name", event.to.name)
+            contexts = Format.chats_to_contexts([chat_data[0]], event)
+            chat_data[1:2] = [self.__ai.gen_system_instruction(prompt, contexts)]
             is_success &= self.__data_manager.write_chat_data(event, chat_data)
 
         return is_success
@@ -63,10 +66,8 @@ class System():
         chat_data:list[list] = self.__data_manager.get_chat_data(event)      
 
         # システム指示の確認
-        self.__ensure_system_instructions(event, chat_data)  
-
-        # AIによる返答の構築
         contexts = Format.chats_to_contexts(chat_data, event)
+        self.__ensure_system_instructions(event, chat_data)  
         responses = self.__ai.chat(event, contexts)
         reply_events: list[Event] = Format.strs_to_events(responses, event)
 
