@@ -60,6 +60,15 @@ class Spreadsheet(Dir):
         except GSpreadException as e:
             logging.exception(e)
             return False
+        
+    @override
+    def get_all_files(self) -> list[Worksheet]:
+        try:
+            ws_list = self.__ss.worksheets()
+            return [Worksheet(ws) for ws in ws_list]
+        except GSpreadException as e:
+            logging.exception(e)
+            return []
     
     def shere(self, email: str, perm_type='user', role='writer') -> bool:
         try:
