@@ -43,7 +43,7 @@ class AI():
         prompt = event.content.data
 
         # 生成
-        system_instructions = f"{name}として会話します。\n {config.SYSTEM_INSTRUCTIONS}"
+        system_instructions = f"{name}として会話してください。\n {config.SYSTEM_INSTRUCTIONS}"
         self.__gen_ai.model = config.MODEL_NAME
         self.__gen_ai.system_instruction = system_instructions
         response = self.__gen_ai.chat(contexts, f"[{timestamp}] {prompt}")
